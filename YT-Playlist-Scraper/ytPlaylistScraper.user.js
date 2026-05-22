@@ -5,6 +5,7 @@
 // @version     1.0.0
 //
 // @match       https://www.youtube.com/playlist*
+// @match       https://music.apple.com/*/album/*
 // @grant       none
 //
 // @author      -
@@ -12,7 +13,7 @@
 // ==/UserScript==
 
 (async () => {
-  const SELECTORS = {
+  const SELECTORS = window.location.hostname.includes("youtube.com") ? {
     playlistTitle: [
       "yt-dynamic-sizing-formatted-string.style-scope.ytd-playlist-header-renderer div#container yt-formatted-string#text",
       "h1 span.ytAttributedStringHost.ytAttributedStringWhiteSpacePreWrap",
@@ -24,7 +25,19 @@
     playlistUrl: ['link[rel="canonical"]'],
     videos: ["div#content ytd-playlist-video-renderer"],
     videoTitle: ["a#video-title"],
-  };
+    videoUrl: ["a#video-title"]
+  } : window.location.hostname.includes("music.apple.com") ? {
+    playlistTitle: [
+      "div.headings h1.headings__title span:not(.headings__badges)",
+    ],
+    playlistArtists: [
+      "div.headings__subtitles a"
+    ],
+    playlistUrl: ["div.headings__subtitles a"],
+    videos: ["div.songs-list-row__song-name-wrapper"],
+    videoTitle: ["div.songs-list-row__song-name"],
+    videoUrl: ["a.click-action"]
+  } : {}
 
   const getElement = (elementName, root, querySelectors, all) => {
     if (all === true) {
@@ -139,7 +152,7 @@
             SELECTORS.videoTitle,
             "innerText",
           ),
-          url: getField("video url", video, SELECTORS.videoTitle, "href"),
+          url: getField("video url", video, SELECTORS.videoUrl, "href"),
         };
       });
 
