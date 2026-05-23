@@ -22,7 +22,6 @@
       "div.metadata-owner yt-formatted-string.ytd-playlist-header-renderer:not(#owner-text)",
       "yt-avatar-stack-view-model span.ytAttributedStringHost.ytAvatarStackViewModelAvatarStackText.ytAttributedStringWhiteSpacePreWrap.ytAttributedStringLinkInheritColor span a",
     ],
-    playlistUrl: ['link[rel="canonical"]'],
     videos: ["div#content ytd-playlist-video-renderer"],
     videoTitle: ["a#video-title"],
     videoUrl: ["a#video-title"]
@@ -33,7 +32,6 @@
     playlistArtists: [
       "div.headings__subtitles a"
     ],
-    playlistUrl: ["div.headings__subtitles a"],
     videos: ["div.songs-list-row__song-name-wrapper"],
     videoTitle: ["div.songs-list-row__song-name"],
     videoUrl: ["a.click-action"]
@@ -132,13 +130,6 @@
         throw Error("Empty playlist artists found");
       }
 
-      const playlistUrl = getField(
-        "playlist url",
-        document,
-        SELECTORS.playlistUrl,
-        "href",
-      );
-
       const videos = Array.from(
         getElement("videos", document, SELECTORS.videos, true),
       );
@@ -159,8 +150,6 @@
       return {
         title: playlistTitle,
         artists: parsedPlaylistArtists,
-        type: "playlist",
-        url: playlistUrl,
         items: parsedVideos,
       };
     } catch (e) {
