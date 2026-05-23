@@ -6,6 +6,7 @@
 //
 // @match       https://www.youtube.com/playlist*
 // @match       https://music.apple.com/*/album/*
+// @match       https://music.youtube.com/playlist*
 // @grant       none
 //
 // @author      -
@@ -13,7 +14,7 @@
 // ==/UserScript==
 
 (async () => {
-  const SELECTORS = window.location.hostname.includes("youtube.com") ? {
+  const SELECTORS = window.location.hostname.includes("www.youtube.com") ? {
     playlistTitle: [
       "yt-dynamic-sizing-formatted-string.style-scope.ytd-playlist-header-renderer div#container yt-formatted-string#text",
       "h1 span.ytAttributedStringHost.ytAttributedStringWhiteSpacePreWrap",
@@ -22,9 +23,9 @@
       "div.metadata-owner yt-formatted-string.ytd-playlist-header-renderer:not(#owner-text)",
       "yt-avatar-stack-view-model span.ytAttributedStringHost.ytAvatarStackViewModelAvatarStackText.ytAttributedStringWhiteSpacePreWrap.ytAttributedStringLinkInheritColor span a",
     ],
-    videos: ["div#content ytd-playlist-video-renderer"],
-    videoTitle: ["a#video-title"],
-    videoUrl: ["a#video-title"]
+    itemss: ["div#content ytd-playlist-video-renderer"],
+    itemsTitle: ["a#video-title"],
+    itemsUrl: ["a#video-title"]
   } : window.location.hostname.includes("music.apple.com") ? {
     playlistTitle: [
       "div.headings h1.headings__title span:not(.headings__badges)",
@@ -32,9 +33,19 @@
     playlistArtists: [
       "div.headings__subtitles a"
     ],
-    videos: ["div.songs-list-row__song-name-wrapper"],
-    videoTitle: ["div.songs-list-row__song-name"],
-    videoUrl: ["a.click-action"]
+    itemss: ["div.songs-list-row__song-name-wrapper"],
+    itemsTitle: ["div.songs-list-row__song-name"],
+    itemsUrl: ["a.click-action"]
+  } : window.location.hostname.includes("music.youtube.com") ? {
+    playlistTitle: [
+      "h1.ytmusic-responsive-header-renderer yt-formatted-string.title",
+    ],
+    playlistArtists: [
+      "yt-formatted-string.strapline-text.ytmusic-responsive-header-renderer"
+    ],
+    itemss: ["div.title-column.ytmusic-responsive-list-item-renderer"],
+    itemsTitle: ["yt-formatted-string a"],
+    itemsUrl: ["yt-formatted-string a"]
   } : {}
 
   const getElement = (elementName, root, querySelectors, all) => {
@@ -130,27 +141,27 @@
         throw Error("Empty playlist artists found");
       }
 
-      const videos = Array.from(
-        getElement("videos", document, SELECTORS.videos, true),
+      const itemss = Array.from(
+        getElement("itemss", document, SELECTORS.itemss, true),
       );
 
-      const parsedVideos = videos.map((video, index) => {
+      const parsedItemss = itemss.map((items, index) => {
         return {
           index: index + 1,
           title: getField(
-            "video title",
-            video,
-            SELECTORS.videoTitle,
+            "items title",
+            items,
+            SELECTORS.itemsTitle,
             "innerText",
           ),
-          url: getField("video url", video, SELECTORS.videoUrl, "href"),
+          url: getField("items url", items, SELECTORS.itemsUrl, "href"),
         };
       });
 
       return {
         title: playlistTitle,
         artists: parsedPlaylistArtists,
-        items: parsedVideos,
+        items: parsedItemss,
       };
     } catch (e) {
       console.error(`PLS: unable to scrape: ${e}`);
